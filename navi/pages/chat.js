@@ -74,12 +74,41 @@ export default function Chat() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#F9F9F6', fontFamily: 'sans-serif', position: 'relative' }}>
-      <header style={{ backgroundColor: '#6BA292', padding: '1rem', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', color: '#fff', position: 'sticky', top: 0, zIndex: 10, cursor: 'pointer' }} onClick={() => router.push('/')}>Navi</header>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      background: 'linear-gradient(to bottom right, #f9f9f6, #e6f0ea)',
+      fontFamily: 'sans-serif',
+      position: 'relative',
+      transition: 'background 0.5s ease'
+    }}>
+      <header style={{ backgroundColor: '#6BA292', padding: '1rem', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', color: '#fff', position: 'sticky', top: 0, zIndex: 10, cursor: 'pointer' }} onClick={() => router.push('/')}
+      style={{
+        backgroundColor: '#6BA292',
+        padding: '1rem',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: '1.5rem',
+        color: '#fff',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        cursor: 'pointer',
+        transition: 'all 0.2s ease-in-out',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}
+      onMouseEnter={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)'}
+      onMouseLeave={(e) => e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'}
+    >Navi</header>
+
+      <div style={{ position: 'absolute', top: 16, left: 16 }}>
+        <button onClick={() => router.back()} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', transition: 'transform 0.2s ease-in-out, box-shadow 0.3s', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', transform: 'scale(1)', backgroundColor: '#EEE', border: 'none', cursor: 'pointer', fontSize: '0.9rem', backgroundColor: '#fff', color: '#333' }}>← Back</button>
+      </div>
 
       <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: '10px' }}>
-        <button onClick={() => router.push('/journal')} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', backgroundColor: '#E3EAE7', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}>📝 Journal</button>
-        <button onClick={() => router.push('/affirmations')} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', backgroundColor: '#FFF4D8', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}>💛 Affirmations</button>
+        <button onClick={() => router.push('/journal')} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', transition: 'transform 0.2s ease-in-out, box-shadow 0.3s', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', transform: 'scale(1)', backgroundColor: '#E3EAE7', border: 'none', cursor: 'pointer', fontSize: '0.9rem', backgroundColor: '#fff', color: '#333' }}>📝 Journal</button>
+        <button onClick={() => router.push('/affirmations')} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', transition: 'transform 0.2s ease-in-out, box-shadow 0.3s', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', transform: 'scale(1)', backgroundColor: '#FFF4D8', border: 'none', cursor: 'pointer', fontSize: '0.9rem', backgroundColor: '#fff', color: '#333' }}>💛 Affirmations</button>
       </div>
 
       <div style={{ margin: '1rem auto 0', padding: '0.75rem 1.25rem', backgroundColor: '#fff8eb', borderRadius: '12px', color: '#444', fontStyle: 'italic', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', textAlign: 'center', maxWidth: '80%' }}>
