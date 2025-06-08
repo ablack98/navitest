@@ -2,20 +2,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-const affirmationsList = [
-  "You are capable of more than you know.",
-  "Today, I choose joy.",
-  "Your heart knows the way—follow it.",
-  "Breathe in calm, breathe out stress.",
-  "Gratitude opens the door to abundance."
-];
-
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [tone, setTone] = useState('calm');
-  const [currentAffirmation, setCurrentAffirmation] = useState(0);
+  const [affirmation, setAffirmation] = useState('');
   const router = useRouter();
   const messagesEndRef = useRef(null);
 
@@ -24,14 +16,22 @@ export default function Chat() {
     const savedTone = localStorage.getItem('navi_tone');
     if (savedLogs) setMessages(JSON.parse(savedLogs));
     if (savedTone) setTone(savedTone);
+    fetchAffirmation();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentAffirmation((prev) => (prev + 1) % affirmationsList.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
+  const fetchAffirmation = async () => {
+    try {
+      const res = await fetch('/api/affirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tone }),
+      });
+      const data = await res.json();
+      setAffirmation(data.result.content);
+    } catch {
+      setAffirmation('You are exactly where you need to be.');
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -44,19 +44,18 @@ export default function Chat() {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-
     const userMessage = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage], tone })
+        body: JSON.stringify({ messages: [...messages, userMessage], tone }),
       });
-      const data = await response.json();
+      const data = await res.json();
       const aiMessage = { role: 'assistant', content: data.result.content };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (err) {
@@ -80,39 +79,88 @@ export default function Chat() {
       height: '100vh',
       background: 'linear-gradient(to bottom right, #f9f9f6, #e6f0ea)',
       fontFamily: 'sans-serif',
-      position: 'relative',
-      transition: 'background 0.5s ease'
+      position: 'relative'
     }}>
-      <header style={{ backgroundColor: '#6BA292', padding: '1rem', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', color: '#fff', position: 'sticky', top: 0, zIndex: 10, cursor: 'pointer' }} onClick={() => router.push('/')}
-      style={{
-        backgroundColor: '#6BA292',
-        padding: '1rem',
+      <header
+        onClick={() => router.push('/')}
+        style={{
+          backgroundColor: '#6BA292',
+          padding: '1rem',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          fontSize: '1.5rem',
+          color: '#fff',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          cursor: 'pointer',
+          transition: 'all 0.2s ease-in-out',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}
+        onMouseEnter={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)'}
+        onMouseLeave={(e) => e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'}
+      >
+        Navi
+      </header>
+
+      <div style={{
+        position: 'absolute',
+        top: 16,
+        left: 16
+      }}>
+        <button onClick={() => router.back()} style={{
+          padding: '0.4rem 0.8rem',
+          borderRadius: '999px',
+          backgroundColor: '#E3EAE7',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          transition: 'all 0.2s ease',
+        }}>← Back</button>
+      </div>
+
+      <div style={{
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        display: 'flex',
+        gap: '10px'
+      }}>
+        <button onClick={() => router.push('/journal')} style={{
+          padding: '0.4rem 0.8rem',
+          borderRadius: '999px',
+          backgroundColor: '#E3EAE7',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          transition: 'transform 0.2s ease-in-out'
+        }}>📝 Journal</button>
+        <button onClick={() => router.push('/affirmations')} style={{
+          padding: '0.4rem 0.8rem',
+          borderRadius: '999px',
+          backgroundColor: '#FFF4D8',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          transition: 'transform 0.2s ease-in-out'
+        }}>💛 Affirmations</button>
+      </div>
+
+      <div style={{
+        margin: '1rem auto 0',
+        padding: '0.75rem 1.25rem',
+        backgroundColor: '#fff8eb',
+        borderRadius: '12px',
+        color: '#444',
+        fontStyle: 'italic',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
         textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '1.5rem',
-        color: '#fff',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        cursor: 'pointer',
-        transition: 'all 0.2s ease-in-out',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}
-      onMouseEnter={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)'}
-      onMouseLeave={(e) => e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'}
-    >Navi</header>
-
-      <div style={{ position: 'absolute', top: 16, left: 16 }}>
-        <button onClick={() => router.back()} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', transition: 'transform 0.2s ease-in-out, box-shadow 0.3s', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', transform: 'scale(1)', backgroundColor: '#EEE', border: 'none', cursor: 'pointer', fontSize: '0.9rem', backgroundColor: '#fff', color: '#333' }}>← Back</button>
-      </div>
-
-      <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: '10px' }}>
-        <button onClick={() => router.push('/journal')} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', transition: 'transform 0.2s ease-in-out, box-shadow 0.3s', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', transform: 'scale(1)', backgroundColor: '#E3EAE7', border: 'none', cursor: 'pointer', fontSize: '0.9rem', backgroundColor: '#fff', color: '#333' }}>📝 Journal</button>
-        <button onClick={() => router.push('/affirmations')} style={{ padding: '0.4rem 0.8rem', borderRadius: '999px', transition: 'transform 0.2s ease-in-out, box-shadow 0.3s', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', transform: 'scale(1)', backgroundColor: '#FFF4D8', border: 'none', cursor: 'pointer', fontSize: '0.9rem', backgroundColor: '#fff', color: '#333' }}>💛 Affirmations</button>
-      </div>
-
-      <div style={{ margin: '1rem auto 0', padding: '0.75rem 1.25rem', backgroundColor: '#fff8eb', borderRadius: '12px', color: '#444', fontStyle: 'italic', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', textAlign: 'center', maxWidth: '80%' }}>
-        {affirmationsList[currentAffirmation]}
+        maxWidth: '80%'
+      }}>
+        {affirmation}
       </div>
 
       <div style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem', paddingTop: '1rem' }}>
@@ -126,7 +174,8 @@ export default function Chat() {
               borderRadius: '1rem',
               backgroundColor: msg.role === 'user' ? '#D0EAE1' : '#ffffff',
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              color: '#333'
+              color: '#333',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
             }}
           >
             {msg.content}
@@ -138,18 +187,38 @@ export default function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ padding: '1rem', borderTop: '1px solid #ddd', backgroundColor: '#fff' }}>
+      <div style={{
+        padding: '1rem',
+        borderTop: '1px solid #ddd',
+        backgroundColor: '#fff'
+      }}>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
           rows={2}
           placeholder="Type your thoughts..."
-          style={{ width: '100%', borderRadius: 8, padding: 10, fontSize: '1rem', border: '1px solid #ccc', resize: 'none' }}
+          style={{
+            width: '100%',
+            borderRadius: 8,
+            padding: 10,
+            fontSize: '1rem',
+            border: '1px solid #ccc',
+            resize: 'none'
+          }}
         />
         <button
           onClick={sendMessage}
-          style={{ marginTop: 8, backgroundColor: '#6BA292', color: '#fff', padding: '0.6rem 1.2rem', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+          style={{
+            marginTop: 8,
+            backgroundColor: '#6BA292',
+            color: '#fff',
+            padding: '0.6rem 1.2rem',
+            border: 'none',
+            borderRadius: 6,
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
         >
           Send
         </button>
